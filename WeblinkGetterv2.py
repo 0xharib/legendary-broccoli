@@ -1,5 +1,5 @@
 pagerange = 465
-writefile = "c:\Users\8u1x0\Studies\Python\data.txt"
+writefile = "c:\Users\8u1x0\Python\data.txt"
 url  = "http://singapore.lib.overdrive.com/3E1CF67D-D9A9-4853-AB5B-A61264B4F3CF/10/50/en/SearchResults.htm?SearchID=43587634s&SortBy=title&SortOrder=asc&Page="
 import mechanize
 import cookielib

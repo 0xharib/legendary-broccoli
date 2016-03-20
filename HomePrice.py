@@ -3,7 +3,7 @@
 # Copyright © 2014
 url = 'http://en.homeprice.com.hk/'
 url_apt = 'http://en.homeprice.com.hk/building/'
-writefile = "C:\Users\HB\Studies\Python\HSBC\pricelinedata.txt"
+writefile = "C:\pricelinedata.txt"
 printinfo = ' '.encode('utf-8')
 import mechanize
 import cookielib
@@ -11,6 +11,8 @@ import io
 import time
 f = io.open(writefile, 'w', encoding='utf8')
 from bs4 import BeautifulSoup as bs
+
+linecount = 0;
 
 br = mechanize.Browser()
 cj = cookielib.LWPCookieJar()
@@ -79,35 +81,50 @@ for control_a in br.form.controls:
 										 building_apt   = str( linktext2.split('/')[5] )
 										 url3 = 'http://en.homeprice.com.hk' + str( link.url )
 										 Html_Page = br3.open( url3 )
+										 print url3
 										 soup = bs(Html_Page, "html.parser")
-										 table = soup.find(text="Valuation Date").find_parent("table")
-										 range_x = [0,1,3,4,5]
-										 for r_index in range_x:
-											row = table.find_all("tr")[r_index]
-											third_column = row.findAll('td')[2]
-											i = -1;
-											for elem in third_column.contents:
-												 i = i + 1
-												 if i == 0:
-													 if r_index == 0:
-														valuation_date = str( elem )														
-													 elif r_index == 1:
-														valuation_amount = str(elem)
-														valuation_amount = valuation_amount[0:valuation_amount.find('M')]
-													 elif r_index == 3:
-														valuation_range  = str(elem)
-														valuation_range  = valuation_range[0:valuation_range.find('\n')-1]	
-													 elif r_index == 4:
-														avg_price_per_sft = str(elem) 
-													 elif r_index == 5:
-														construction_area = str(elem)
-														construction_area = construction_area[0:construction_area.find('\n')-1]
-												     
-										 printinfo += item_a.name + "^" + estate_name + "^" + estate_code + "^" + building_floor + "^" + building_apt + "^" + str( url3 ) + "^" + valuation_amount + "^" + valuation_range + "^" + avg_price_per_sft + "^" + construction_area + "^"  + valuation_date + "\n"
-										 # break
-							   	 # break		
-						 				    
+										 locatetable = soup.find(text="Valuation Date")
+										 try:
+											 getattr(locatetable, 'find_parent')         
+										 except AttributeError:
+											 continue
+										 else:
+											 table = locatetable.find_parent("table")
+											 range_x = [0,1,3,4,5]  
+											 for r_index in range_x:
+												 row = table.find_all("tr")[r_index]
+												 third_column = row.findAll('td')[2]
+												 i = -1
+												 for elem in third_column.contents:
+													 i = i + 1
+													 if i == 0:
+														if   r_index == 0:
+															 valuation_date = str( elem )
+														elif r_index == 3:
+															 valuation_range  = str(elem)
+															 valuation_range  = valuation_range[0:valuation_range.find('\n')-1]	
+														elif r_index == 4:
+															 avg_price_per_sft = str(elem) 
+														elif r_index == 5:
+															 construction_area = str(elem)
+															 construction_area = construction_area[0:construction_area.find('\n')-1]
+														elif r_index == 1:
+															 valuation_amount = str(elem)
+															 valuation_amount = valuation_amount[0:valuation_amount.find('M')]
+											 printinfo += item_a.name + "^" + estate_name + "^" + estate_code + "^" + building_floor + "^" + building_apt + "^" + str( url3 ) + "^" + valuation_amount + "^" + valuation_range + "^" + avg_price_per_sft + "^" + construction_area + "^"  + valuation_date + "\n"
+											 linecount = linecount + 1
+											 if linecount == 100:
+												linecount = 0
+												f = io.open(writefile, 'w', encoding='utf8')
+												f.write(printinfo.decode('utf-8'))
+												f.close()
+											 
+										 #break
+							   	 #break				 				    
+
+f = io.open(writefile, 'w', encoding='utf8')
 f.write(printinfo.decode('utf-8'))
+f.close()
 br.close()	
 br2.close()
 br3.close()
